@@ -10,14 +10,14 @@
 #include <util/delay.h>
 #include "usart.h"
 #include "chipdef.h"
+#include "memory.h"
 
 int main()
 {
 	Usart_Init();
+	Usart_TransmitString("Dynabox/Lockerbox Bootloader\n");
 	while(1)
 	{
-		Usart_TransmitString("Bootloader");
-		//Usart_Transmit('b');
 		uint8_t ch = Usart_Receive();
 
 		if(ch == 'u')
@@ -30,16 +30,11 @@ int main()
 
 			type = 0;
 			address = 0;
-
-			while(address < APP_END)
+			for(uint8_t page = 0; page < 128; page++)
 			{
-				boot_page_erase(address);
-				boot_spm_busy_wait();
-				address += SPM_PAGESIZE;
+				EraseProgramPage(page, 0);
 			}
-			///address = 0;
-			Usart_TransmitString("OK");
-			//Usart_Transmit('U');
+			Usart_TransmitString("Flash Erase OK\n");
 		}
 	}
 }
