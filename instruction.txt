@@ -1,0 +1,11 @@
+------------- TWORZENIE BOOTLOADERA -------------
+1. Sworzyæ normalny nowy projekt, dodaæ do opcji linkera (W Eclipse): prawy klik na projekcie-> 
+c/C++ Build -> Settings -> Avr C++ Linker -> General -> Other arguments: -Wl,-section-start=.text=0x1C00
+gdzie:
+adres = 2 * Boot address w fusebicie BOOTSZ
+
+2. Skompilowaæ.
+3. z toolchaina AVR: srec_cat door-test.hex -intel door-bootloader.hex -intel -o both.hex -intel
+Powoduje to powstanie pliku zawieraj¹cego bootloader i aplikacjê.
+
+4. Aby wystartowaæ po resecie bootloader ustawiæ fusebit BOOTRST.
