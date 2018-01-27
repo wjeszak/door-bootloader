@@ -9,35 +9,34 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "usart.h"
-#include "chipdef.h"
 #include "memory.h"
+
+static void (*jump_to_app)(void) = 0x0000;
 
 int main()
 {
 	Usart_Init();
-	Usart_TransmitString("Dynabox/Lockerbox Bootloader\n");
+	Usart_Transmit('>');
 	while(1)
 	{
-		uint8_t ch = Usart_Receive();
-
-		if(ch == 'u')
+		switch(Usart_Receive())
 		{
-			uint8_t memory_tmp[SPM_PAGESIZE];
-			uint16_t address, tmp_address;
-			uint8_t cnt, type, i, j;
-			uint8_t new_page = 0;
-			uint16_t memory_data;
-
-			type = 0;
+		case 'c':
+			boot_spm_busy_wait();
+			uint16_t address;
 			address = 0;
-			for(uint8_t page = 0; page < 128; page++)
+			while(address < APP_END)
 			{
-				EraseProgramPage(page, 0);
+				boot_page_erase(address);
+				boot_spm_busy_wait();
+				address += SPM_PAGESIZE;
 			}
-			Usart_TransmitString("Flash Erase OK\n");
+			Usart_Transmit('^');
+			break;
+
+		case 'r':
+			jump_to_app();
+			break;
 		}
 	}
 }
-
-
-
